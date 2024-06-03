@@ -1,4 +1,4 @@
-package model.repository;
+package model.repository.alaloka;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import model.entity.Vaga;
+import model.repository.Banco;
+import model.repository.BaseRepository;
 
 public class VagaRepository implements BaseRepository<Vaga> {
 
@@ -37,19 +37,19 @@ public class VagaRepository implements BaseRepository<Vaga> {
 	}
 
 	@Override
-	public boolean excluir(int idVaga) {
-	        String query = "DELETE FROM Vaga WHERE id = ?";
-	        try (Connection conn = Banco.getConnection();
-	             PreparedStatement stmt = conn.prepareStatement(query)) {
+    public boolean excluir(int idVaga) {
+        String query = "DELETE FROM Vaga WHERE id = ?";
+        try (Connection conn = Banco.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
-	            stmt.setInt(1, idVaga);
-	            stmt.executeUpdate();
+            stmt.setInt(1, idVaga);
+            int linhasAfetadas = stmt.executeUpdate();
 
-	        } catch (SQLException e) {
-	            throw new RuntimeException("Erro ao deletar vaga: " + e.getMessage(), e);
-	        }
-		return false;
-	}
+            return linhasAfetadas > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao deletar vaga: " + e.getMessage(), e);
+        }
+    }
 
 	@Override
 	public boolean alterar(Vaga vaga) {
@@ -111,7 +111,7 @@ public class VagaRepository implements BaseRepository<Vaga> {
 	    } catch (SQLException e) {
 	        throw new RuntimeException("Erro ao listar vagas: " + e.getMessage(), e);
 	    }
-	    return vagas; 
+	    return (ArrayList<Vaga>) vagas; 
 	}
 
 }
