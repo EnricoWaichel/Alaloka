@@ -1,0 +1,350 @@
+{
+	"info": {
+		"_postman_id": "903ac569-1dc8-4abc-986d-09815bcbf5a6",
+		"name": "Alaloka",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "34599792"
+	},
+	"item": [
+		{
+			"name": "Vagas",
+			"item": [
+				{
+					"name": "Salvar vaga",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"numeroVaga\": 1,\r\n    \"tipoVaga\": \"carro\",\r\n    \"disponivel\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/Alaloka/rest/vagas"
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar vaga",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/Alaloka/rest/vagas/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 2,\r\n    \"numeroVaga\": 1,\r\n    \"tipoVaga\": \"moto\",\r\n    \"disponivel\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/Alaloka/rest/vagas"
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar todas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/Alaloka/rest/vagas/todas"
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar por id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/Alaloka/rest/vagas/2"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Clientes",
+			"item": [
+				{
+					"name": "Salvar cliente",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": " {\r\n        \"nome\": \"pepe\",\r\n        \"cpf\": \"13277891917\",\r\n        \"telefone\": \"345634563663\"\r\n    }\r\n    ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/Alaloka/rest/clientes"
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar cliente",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/Alaloka/rest/clientes/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 2,\r\n    \"numeroVaga\": 1,\r\n    \"tipoVaga\": \"moto\",\r\n    \"disponivel\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/Alaloka/rest/clientes"
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar todas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/Alaloka/rest/clientes"
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar por id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/Alaloka/rest/clientes/1"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Carros",
+			"item": [
+				{
+					"name": "Salvar carro",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": " {\r\n        \"placa\": \"ABC1234\",\r\n        \"tipoVeiculo\": \"carro\"\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/Alaloka/rest/carros"
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar carro",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/Alaloka/rest/carros/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 2,\r\n    \"numeroVaga\": 1,\r\n    \"tipoVaga\": \"moto\",\r\n    \"disponivel\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/Alaloka/rest/carros"
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar todas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/Alaloka/rest/carros"
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar por id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/Alaloka/rest/carros/1"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cancela",
+			"item": [
+				{
+					"name": "Salvar cancela",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\r\n        \"placa\": \"ABC1234\",\r\n        \"tipoCarro\": \"carro\"\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/Alaloka/rest/cancela"
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar cancela",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/Alaloka/rest/cancela/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Copy",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 2,\r\n    \"numeroVaga\": 1,\r\n    \"tipoVaga\": \"moto\",\r\n    \"disponivel\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/Alaloka/rest/cancela/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar todas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/Alaloka/rest/cancela"
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar por id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/Alaloka/rest/cancela/1"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Ticket",
+			"item": [
+				{
+					"name": "Salvar um ticket",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\r\n        \"placa\": \"ABC1234\",\r\n        \"tipoCarro\": \"carro\"\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/Alaloka/rest/ticket"
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar ticket",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:8080/Alaloka/rest/ticket/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Copy 2",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 2,\r\n    \"numeroVaga\": 1,\r\n    \"tipoVaga\": \"moto\",\r\n    \"disponivel\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8080/Alaloka/rest/ticket/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar todas Copy",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/Alaloka/rest/ticket"
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar por id Copy",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:8080/Alaloka/rest/ticket"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

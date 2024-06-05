@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
 import model.entity.Cliente;
 import model.repository.Banco;
@@ -13,86 +12,108 @@ import model.repository.BaseRepository;
 
 public class ClienteRepository implements BaseRepository<Cliente> {
 
+    @Override
     public Cliente salvar(Cliente novoCliente) {
         String query = "INSERT INTO Cliente (nome, cpf, telefone) VALUES (?, ?, ?)";
-        try (Connection conn = Banco.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
-             ResultSet resultado = stmt.executeQuery()) {
+        Connection conn = Banco.getConnection();
+        PreparedStatement stmt = Banco.getPreparedStatementWithPk(conn, query);
 
+        try {
             stmt.setString(1, novoCliente.getNome());
             stmt.setString(2, novoCliente.getCpf());
             stmt.setString(3, novoCliente.getTelefone());
 
-            stmt.executeUpdate();
-
+            stmt.execute();
+            ResultSet resultado = stmt.getGeneratedKeys();
             if (resultado.next()) {
                 novoCliente.setIdCliente(resultado.getInt(1));
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao salvar cliente: " + e.getMessage(), e);
+            System.out.println("Erro ao salvar cliente");
+            System.out.println("Erro: " + e.getMessage());
+        } finally {
+            Banco.closePreparedStatement(stmt);
+            Banco.closeConnection(conn);
         }
+
         return novoCliente;
     }
 
+    @Override
     public boolean excluir(int idCliente) {
         String query = "DELETE FROM Cliente WHERE id = ?";
-        try (Connection conn = Banco.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        boolean excluiu = false;
+        Connection conn = Banco.getConnection();
 
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, idCliente);
-            int linhasAfetadas = stmt.executeUpdate();
-
-            return linhasAfetadas > 0;
+            excluiu = stmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao deletar cliente: " + e.getMessage(), e);
+            System.out.println("Erro ao excluir cliente");
+            System.out.println("Erro: " + e.getMessage());
+        } finally {
+            Banco.closeConnection(conn);
         }
+
+        return excluiu;
     }
 
-    public boolean alterar(Cliente cliente) {
+    @Override
+    public boolean alterar(Cliente clienteEditado) {
         String query = "UPDATE Cliente SET nome = ?, cpf = ?, telefone = ? WHERE id = ?";
-        try (Connection conn = Banco.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        boolean alterou = false;
+        Connection conn = Banco.getConnection();
 
-            stmt.setString(1, cliente.getNome());
-            stmt.setString(2, cliente.getCpf());
-            stmt.setString(3, cliente.getTelefone());
-            stmt.setInt(4, cliente.getIdCliente());
-            int linhasAfetadas = stmt.executeUpdate();
-            return linhasAfetadas > 0;
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, clienteEditado.getNome());
+            stmt.setString(2, clienteEditado.getCpf());
+            stmt.setString(3, clienteEditado.getTelefone());
+            stmt.setInt(4, clienteEditado.getIdCliente());
+            alterou = stmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao atualizar cliente: " + e.getMessage(), e);
+            System.out.println("Erro ao atualizar cliente");
+            System.out.println("Erro: " + e.getMessage());
+        } finally {
+            Banco.closeConnection(conn);
         }
+
+        return alterou;
     }
 
+    @Override
     public Cliente consultarPorId(int idCliente) {
         String query = "SELECT * FROM Cliente WHERE id = ?";
-        try (Connection conn = Banco.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        Cliente cliente = null;
+        Connection conn = Banco.getConnection();
 
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, idCliente);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    Cliente cliente = new Cliente();
+                    cliente = new Cliente();
                     cliente.setIdCliente(rs.getInt("id"));
                     cliente.setNome(rs.getString("nome"));
                     cliente.setCpf(rs.getString("cpf"));
                     cliente.setTelefone(rs.getString("telefone"));
-                    return cliente;
-                } else {
-                    return null;
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar cliente por ID: " + e.getMessage(), e);
+            System.out.println("Erro ao consultar cliente com o id: " + idCliente);
+            System.out.println("Erro: " + e.getMessage());
+        } finally {
+            Banco.closeConnection(conn);
         }
+
+        return cliente;
     }
 
+    @Override
     public ArrayList<Cliente> consultarTodos() {
-        List<Cliente> clientes = new ArrayList<>();
+        ArrayList<Cliente> clientes = new ArrayList<>();
         String query = "SELECT * FROM Cliente";
-        try (Connection conn = Banco.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
+        Connection conn = Banco.getConnection();
+
+        try (PreparedStatement stmt = conn.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -104,8 +125,12 @@ public class ClienteRepository implements BaseRepository<Cliente> {
                 clientes.add(cliente);
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar clientes: " + e.getMessage(), e);
+            System.out.println("Erro ao consultar todos os clientes");
+            System.out.println("Erro: " + e.getMessage());
+        } finally {
+            Banco.closeConnection(conn);
         }
-        return (ArrayList<Cliente>) clientes; 
+
+        return clientes;
     }
 }

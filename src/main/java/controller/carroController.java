@@ -1,63 +1,55 @@
 package controller;
 
-import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.*;
-import model.entity.Carro;
-import model.repository.alaloka.CarroRepository;
 
-import java.net.URI;
 import java.util.List;
+
+import exception.AlalokaException;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+
+import model.entity.Carro;
+import service.CarroService;
 
 @Path("/carros")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class carroController {
 
-    @Inject
-    private CarroRepository carroRepository;
+	private final CarroService service = new CarroService();
+
+	@GET
+	@Path("/todos")
+	public List<Carro> consultarTodos(){
+		 return service.consultarTodosCarros();
+	}
 
     @GET
-    public List<Carro> listarCarros() {
-        return carroRepository.consultarTodos();
-    }
-
-    @GET
-    @Path("/{id}")
-    public Response buscarCarroPorId(@PathParam("id") int id) {
-        Carro carro = carroRepository.consultarPorId(id);
-        if (carro != null) {
-            return Response.ok(carro).build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-    }
-
+	@Path("/{id}")
+	public Carro consultarPorId(@PathParam("id") int id){
+		 return service.consultarCarroPorId(id);
+	}
+	
     @POST
-    public Response cadastrarCarro(Carro carro, @Context UriInfo uriInfo) {
-        Carro novoCarro = carroRepository.salvar(carro);
-        URI uri = uriInfo.getAbsolutePathBuilder().path(Integer.toString(novoCarro.getIdCarro())).build();
-        return Response.created(uri).entity(novoCarro).build();
+    public Carro salvar (Carro carro) throws AlalokaException {
+    	return service.salvarCarro(carro);
     }
 
     @PUT
-    @Path("/{id}")
-    public Response atualizarCarro(@PathParam("id") int id, Carro carro) {
-        carro.setIdCarro(id); 
-        if (carroRepository.alterar(carro)) {
-            return Response.ok().build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-    }
+	public boolean atualizar(Carro carroEditado) throws AlalokaException{
+		 return service.atualizarCarro(carroEditado);
+	}
+    
 
     @DELETE
     @Path("/{id}")
-    public Response deletarCarro(@PathParam("id") int id) {
-        if (carroRepository.excluir(id)) {
-            return Response.ok().build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+    public boolean deletarCarro(@PathParam("id") int id) throws AlalokaException {
+    	return service.excluirCarro(id);
     }
 }

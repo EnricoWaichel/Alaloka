@@ -1,11 +1,10 @@
 package model.repository.alaloka;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 
 import model.entity.Vaga;
 import model.repository.Banco;
@@ -13,105 +12,125 @@ import model.repository.BaseRepository;
 
 public class VagaRepository implements BaseRepository<Vaga> {
 
-	@Override
-	public Vaga salvar(Vaga novaVaga) {
-	    String query = "INSERT INTO Vaga (numeroVaga, tipoVaga, disponivel) VALUES (?, ?, ?)";
-	    try (Connection conn = Banco.getConnection();
-	         PreparedStatement stmt = conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
-	         ResultSet resultado = stmt.executeQuery()) {
+    @Override
+    public Vaga salvar(Vaga novaVaga) {
+        String sql = "INSERT INTO Vaga(numeroVaga, tipoVaga, disponivel) VALUES (?, ?, ?)";
+        Connection conexao = Banco.getConnection();
+        PreparedStatement stmt = Banco.getPreparedStatementWithPk(conexao, sql);
 
-	        stmt.setInt(1, novaVaga.getNumeroVaga());
-	        stmt.setString(2, novaVaga.getTipoVaga());
-	        stmt.setBoolean(3, novaVaga.isDisponivel());
+        try {
+            stmt.setInt(1, novaVaga.getNumeroVaga());
+            stmt.setString(2, novaVaga.getTipoVaga());
+            stmt.setBoolean(3, novaVaga.isDisponivel());
 
-	        stmt.executeUpdate();
-
-	        if (resultado.next()) {
-	            novaVaga.setId(resultado.getInt(1));
-	        }
-
-	    } catch (SQLException e) {
-	        throw new RuntimeException("Erro ao salvar vaga: " + e.getMessage(), e);
-	    }
-	    return novaVaga;
-	}
-
-	@Override
-    public boolean excluir(int idVaga) {
-        String query = "DELETE FROM Vaga WHERE id = ?";
-        try (Connection conn = Banco.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setInt(1, idVaga);
-            int linhasAfetadas = stmt.executeUpdate();
-
-            return linhasAfetadas > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao deletar vaga: " + e.getMessage(), e);
-        }
-    }
-
-	@Override
-	public boolean alterar(Vaga vaga) {
-        String query = "UPDATE Vaga SET numeroVaga = ?, tipoVaga = ?, disponivel = ? WHERE id = ?";
-        try (Connection conn = Banco.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setInt(1, vaga.getNumeroVaga());
-            stmt.setString(2, vaga.getTipoVaga());
-            stmt.setBoolean(3, vaga.isDisponivel());
-            stmt.setInt(4, vaga.getId());
-            int linhasAfetadas = stmt.executeUpdate();
-            return linhasAfetadas > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao atualizar vaga: " + e.getMessage(), e);
-        }
-	}
-
-	@Override
-	public Vaga consultarPorId(int idVaga) {
-        String query = "SELECT * FROM Vaga WHERE id = ?";
-        try (Connection conn = Banco.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setInt(1, idVaga);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    Vaga vaga = new Vaga();
-                    vaga.setId(rs.getInt("id"));
-                    vaga.setNumeroVaga(rs.getInt("numeroVaga"));
-                    vaga.setTipoVaga(rs.getString("tipoVaga"));
-                    vaga.setDisponivel(rs.getBoolean("disponivel"));
-                    return vaga;
-                } else {
-                    return null;
-                }
+            stmt.execute();
+            ResultSet resultado = stmt.getGeneratedKeys();
+            if (resultado.next()) {
+                novaVaga.setId(resultado.getInt(1));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar vaga por ID: " + e.getMessage(), e);
+            System.out.println("Erro ao salvar nova vaga");
+            System.out.println("Erro: " + e.getMessage());
+        } finally {
+            Banco.closePreparedStatement(stmt);
+            Banco.closeConnection(conexao);
         }
-	}
 
-	@Override
-	public ArrayList<Vaga> consultarTodos() {
-	    List<Vaga> vagas = new ArrayList<>();
-	    String query = "SELECT * FROM Vaga";
-	    try (Connection conn = Banco.getConnection();
-	         PreparedStatement stmt = conn.prepareStatement(query);
-	         ResultSet rs = stmt.executeQuery()) {
+        return novaVaga;
+    }
 
-	        while (rs.next()) {
-	            Vaga vaga = new Vaga();
-	            vaga.setId(rs.getInt("id"));
-	            vaga.setNumeroVaga(rs.getInt("numeroVaga"));
-	            vaga.setTipoVaga(rs.getString("tipoVaga"));
-	            vaga.setDisponivel(rs.getBoolean("disponivel"));
-	            vagas.add(vaga);
-	        }
-	    } catch (SQLException e) {
-	        throw new RuntimeException("Erro ao listar vagas: " + e.getMessage(), e);
-	    }
-	    return (ArrayList<Vaga>) vagas; 
-	}
+    @Override
+    public boolean excluir(int id) {
+        Connection conn = Banco.getConnection();
+        String query = "DELETE FROM Vaga WHERE id = ?";
+        boolean excluiu = false;
 
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            excluiu = stmt.executeUpdate() > 0;
+        } catch (SQLException erro) {
+            System.out.println("Erro ao excluir vaga");
+            System.out.println("Erro: " + erro.getMessage());
+        } finally {
+            Banco.closeConnection(conn);
+        }
+
+        return excluiu;
+    }
+
+    @Override
+    public boolean alterar(Vaga vagaEditada) {
+        String query = "UPDATE Vaga SET numeroVaga = ?, tipoVaga = ?, disponivel = ? WHERE id = ?";
+        boolean alterou = false;
+        Connection conn = Banco.getConnection();
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, vagaEditada.getNumeroVaga());
+            stmt.setString(2, vagaEditada.getTipoVaga());
+            stmt.setBoolean(3, vagaEditada.isDisponivel());
+            stmt.setInt(4, vagaEditada.getId());
+            alterou = stmt.executeUpdate() > 0;
+        } catch (SQLException erro) {
+            System.out.println("Erro ao atualizar vaga");
+            System.out.println("Erro: " + erro.getMessage());
+        } finally {
+            Banco.closeConnection(conn);
+        }
+
+        return alterou;
+    }
+
+    @Override
+    public Vaga consultarPorId(int id) {
+        Connection conn = Banco.getConnection();
+        String query = "SELECT * FROM Vaga WHERE id = ?";
+        Vaga vaga = null;
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            try (ResultSet resultado = stmt.executeQuery()) {
+                if (resultado.next()) {
+                    vaga = new Vaga();
+                    vaga.setId(resultado.getInt("id"));
+                    vaga.setNumeroVaga(resultado.getInt("numeroVaga"));
+                    vaga.setTipoVaga(resultado.getString("tipoVaga"));
+                    vaga.setDisponivel(resultado.getBoolean("disponivel"));
+                }
+            }
+        } catch (SQLException erro) {
+            System.out.println("Erro ao consultar vaga com o id: " + id);
+            System.out.println("Erro: " + erro.getMessage());
+        } finally {
+            Banco.closeConnection(conn);
+        }
+
+        return vaga;
+    }
+
+    @Override
+    public ArrayList<Vaga> consultarTodos() {
+        ArrayList<Vaga> vagas = new ArrayList<>();
+        Connection conn = Banco.getConnection();
+        String query = "SELECT * FROM Vaga";
+
+        try (PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet resultado = stmt.executeQuery()) {
+
+            while (resultado.next()) {
+                Vaga vaga = new Vaga();
+                vaga.setId(resultado.getInt("id"));
+                vaga.setNumeroVaga(resultado.getInt("numeroVaga"));
+                vaga.setTipoVaga(resultado.getString("tipoVaga"));
+                vaga.setDisponivel(resultado.getBoolean("disponivel"));
+                vagas.add(vaga);
+            }
+        } catch (SQLException erro) {
+            System.out.println("Erro ao consultar todas as vagas");
+            System.out.println("Erro: " + erro.getMessage());
+        } finally {
+            Banco.closeConnection(conn);
+        }
+
+        return vagas;
+    }
 }

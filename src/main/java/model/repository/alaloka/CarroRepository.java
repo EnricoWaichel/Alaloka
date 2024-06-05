@@ -5,102 +5,128 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
 import model.entity.Carro;
 import model.repository.Banco;
+import model.repository.BaseRepository;
 
-public class CarroRepository {
+public class CarroRepository implements BaseRepository<Carro> {
 
+    @Override
     public Carro salvar(Carro novoCarro) {
-        String query = "INSERT INTO Carro (placa, tipoCarro) VALUES (?, ?)";
-        try (Connection conn = Banco.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
-             ResultSet resultado = stmt.executeQuery()) {
+        String sql = "INSERT INTO Carro (placa, tipoCarro) VALUES (?, ?)";
+        Connection conexao = Banco.getConnection();
+        PreparedStatement stmt = Banco.getPreparedStatementWithPk(conexao, sql);
 
+        try {
             stmt.setString(1, novoCarro.getPlaca());
             stmt.setString(2, novoCarro.getTipoVeiculo());
 
-            stmt.executeUpdate();
-
+            stmt.execute();
+            ResultSet resultado = stmt.getGeneratedKeys();
             if (resultado.next()) {
                 novoCarro.setIdCarro(resultado.getInt(1));
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao salvar carro: " + e.getMessage(), e);
+            System.out.println("Erro ao salvar novo carro");
+            System.out.println("Erro: " + e.getMessage());
+        } finally {
+            Banco.closePreparedStatement(stmt);
+            Banco.closeConnection(conexao);
         }
+
         return novoCarro;
     }
 
-    public boolean excluir(int idCarro) {
+    @Override
+    public boolean excluir(int id) {
+        Connection conn = Banco.getConnection();
         String query = "DELETE FROM Carro WHERE id = ?";
-        try (Connection conn = Banco.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        boolean excluiu = false;
 
-            stmt.setInt(1, idCarro);
-            int linhasAfetadas = stmt.executeUpdate();
-
-            return linhasAfetadas > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao deletar carro: " + e.getMessage(), e);
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            excluiu = stmt.executeUpdate() > 0;
+        } catch (SQLException erro) {
+            System.out.println("Erro ao excluir carro");
+            System.out.println("Erro: " + erro.getMessage());
+        } finally {
+            Banco.closeConnection(conn);
         }
+
+        return excluiu;
     }
 
-    public boolean alterar(Carro carro) {
+    @Override
+    public boolean alterar(Carro carroEditado) {
         String query = "UPDATE Carro SET placa = ?, tipoCarro = ? WHERE id = ?";
-        try (Connection conn = Banco.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        boolean alterou = false;
+        Connection conn = Banco.getConnection();
 
-            stmt.setString(1, carro.getPlaca());
-            stmt.setString(2, carro.getTipoVeiculo());
-            stmt.setInt(3, carro.getIdCarro());
-            int linhasAfetadas = stmt.executeUpdate();
-            return linhasAfetadas > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao atualizar carro: " + e.getMessage(), e);
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, carroEditado.getPlaca());
+            stmt.setString(2, carroEditado.getTipoVeiculo());
+            stmt.setInt(3, carroEditado.getIdCarro());
+            alterou = stmt.executeUpdate() > 0;
+        } catch (SQLException erro) {
+            System.out.println("Erro ao atualizar carro");
+            System.out.println("Erro: " + erro.getMessage());
+        } finally {
+            Banco.closeConnection(conn);
         }
+
+        return alterou;
     }
 
-    public Carro consultarPorId(int idCarro) {
+    @Override
+    public Carro consultarPorId(int id) {
+        Connection conn = Banco.getConnection();
         String query = "SELECT * FROM Carro WHERE id = ?";
-        try (Connection conn = Banco.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        Carro carro = null;
 
-            stmt.setInt(1, idCarro);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    Carro carro = new Carro();
-                    carro.setIdCarro(rs.getInt("id"));
-                    carro.setPlaca(rs.getString("placa"));
-                    carro.setTipoVeiculo(rs.getString("tipoCarro"));
-                    return carro;
-                } else {
-                    return null;
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            try (ResultSet resultado = stmt.executeQuery()) {
+                if (resultado.next()) {
+                    carro = new Carro();
+                    carro.setIdCarro(resultado.getInt("id"));
+                    carro.setPlaca(resultado.getString("placa"));
+                    carro.setTipoVeiculo(resultado.getString("tipoCarro"));
                 }
             }
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar carro por ID: " + e.getMessage(), e);
+        } catch (SQLException erro) {
+            System.out.println("Erro ao consultar carro com o id: " + id);
+            System.out.println("Erro: " + erro.getMessage());
+        } finally {
+            Banco.closeConnection(conn);
         }
+
+        return carro;
     }
 
+    @Override
     public ArrayList<Carro> consultarTodos() {
-        List<Carro> carros = new ArrayList<>();
+        ArrayList<Carro> carros = new ArrayList<>();
+        Connection conn = Banco.getConnection();
         String query = "SELECT * FROM Carro";
-        try (Connection conn = Banco.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
 
-            while (rs.next()) {
+        try (PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet resultado = stmt.executeQuery()) {
+
+            while (resultado.next()) {
                 Carro carro = new Carro();
-                carro.setIdCarro(rs.getInt("id"));
-                carro.setPlaca(rs.getString("placa"));
-                carro.setTipoVeiculo(rs.getString("tipoCarro"));
+                carro.setIdCarro(resultado.getInt("id"));
+                carro.setPlaca(resultado.getString("placa"));
+                carro.setTipoVeiculo(resultado.getString("tipoCarro"));
                 carros.add(carro);
             }
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar carros: " + e.getMessage(), e);
+        } catch (SQLException erro) {
+            System.out.println("Erro ao consultar todos os carros");
+            System.out.println("Erro: " + erro.getMessage());
+        } finally {
+            Banco.closeConnection(conn);
         }
-        return (ArrayList<Carro>) carros; 
+
+        return carros;
     }
 }

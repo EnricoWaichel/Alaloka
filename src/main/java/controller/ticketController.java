@@ -18,6 +18,7 @@ public class ticketController {
     private TicketRepository ticketRepository;
 
     @GET
+    @Path("/todos")
     public List<Ticket> listarTickets() {
         return ticketRepository.consultarTodos();
     }

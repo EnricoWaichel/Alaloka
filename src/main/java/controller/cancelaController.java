@@ -39,7 +39,7 @@ public class cancelaController {
         URI uri = uriInfo.getAbsolutePathBuilder().path(Integer.toString(novaCancela.getIdCancela())).build();
         return Response.created(uri).entity(novaCancela).build();
     }
-
+//...
     @PUT
     @Path("/{id}")
     public Response atualizarCancela(@PathParam("id") int id, Cancela cancela) {

@@ -1,10 +1,8 @@
 package controller;
 
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.inject.Inject;
+import exception.AlalokaException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -13,62 +11,42 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import model.entity.Cliente;
-import model.repository.alaloka.ClienteRepository;
+import service.ClienteService;
 
 @Path("/clientes")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class clienteController {
 
-    @Inject
-    private ClienteRepository clienteRepository;
+    private final ClienteService service = new ClienteService();
 
     @GET
+    @Path("/todos")
     public List<Cliente> listarClientes() {
-        return clienteRepository.consultarTodos();
+        return service.consultarTodosClientes();
     }
 
     @GET
     @Path("/{id}")
-    public Response buscarClientePorId(@PathParam("id") int id) {
-        Cliente cliente = clienteRepository.consultarPorId(id);
-        if (cliente != null) {
-            return Response.ok(cliente).build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+    public Cliente buscarClientePorId(@PathParam("id") int id) {
+        return service.consultarClientePorId(id);
     }
 
     @POST
-    public Response cadastrarCliente(Cliente cliente, @Context UriInfo uriInfo) {
-        Cliente novoCliente = clienteRepository.salvar(cliente);
-        URI uri = uriInfo.getAbsolutePathBuilder().path(Integer.toString(novoCliente.getIdCliente())).build();
-        return Response.created(uri).entity(novoCliente).build();
+    public Cliente cadastrarCliente(Cliente cliente) throws AlalokaException {
+        return service.salvarCliente(cliente);
     }
 
     @PUT
-    @Path("/{id}")
-    public Response atualizarCliente(@PathParam("id") int id, Cliente cliente) {
-        cliente.setIdCliente(id);
-        if (clienteRepository.alterar(cliente)) {
-            return Response.ok().build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+    public boolean atualizarCliente(Cliente clienteEditado) throws AlalokaException {
+        return service.atualizarCliente(clienteEditado);
     }
 
     @DELETE
     @Path("/{id}")
-    public Response deletarCliente(@PathParam("id") int id) {
-        if (clienteRepository.excluir(id)) {
-            return Response.ok().build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+    public boolean deletarCliente(@PathParam("id") int id) throws AlalokaException {
+        return service.excluirCliente(id);
     }
 }

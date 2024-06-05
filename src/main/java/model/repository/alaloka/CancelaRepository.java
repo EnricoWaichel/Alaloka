@@ -5,98 +5,124 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
 import model.entity.Cancela;
 import model.repository.Banco;
+import model.repository.BaseRepository;
 
-public class CancelaRepository {
+public class CancelaRepository implements BaseRepository<Cancela> {
 
+    @Override
     public Cancela salvar(Cancela novaCancela) {
-        String query = "INSERT INTO Cancela (status) VALUES (?)";
-        try (Connection conn = Banco.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
+        String sql = "INSERT INTO Cancela(status) VALUES (?)";
+        Connection conexao = Banco.getConnection();
+        PreparedStatement stmt = Banco.getPreparedStatementWithPk(conexao, sql);
 
+        try {
             stmt.setString(1, novaCancela.getStatus());
 
-            stmt.executeUpdate();
+            stmt.execute();
             ResultSet resultado = stmt.getGeneratedKeys();
-
             if (resultado.next()) {
                 novaCancela.setIdCancela(resultado.getInt(1));
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao salvar cancela: " + e.getMessage(), e);
+            System.out.println("Erro ao salvar nova cancela");
+            System.out.println("Erro: " + e.getMessage());
+        } finally {
+            Banco.closePreparedStatement(stmt);
+            Banco.closeConnection(conexao);
         }
+
         return novaCancela;
     }
 
-    public boolean excluir(int idCancela) {
+    @Override
+    public boolean excluir(int id) {
+        Connection conn = Banco.getConnection();
         String query = "DELETE FROM Cancela WHERE id = ?";
-        try (Connection conn = Banco.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        boolean excluiu = false;
 
-            stmt.setInt(1, idCancela);
-            int linhasAfetadas = stmt.executeUpdate();
-
-            return linhasAfetadas > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao deletar cancela: " + e.getMessage(), e);
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            excluiu = stmt.executeUpdate() > 0;
+        } catch (SQLException erro) {
+            System.out.println("Erro ao excluir cancela");
+            System.out.println("Erro: " + erro.getMessage());
+        } finally {
+            Banco.closeConnection(conn);
         }
+
+        return excluiu;
     }
 
-    public boolean alterar(Cancela cancela) {
+    @Override
+    public boolean alterar(Cancela cancelaEditada) {
         String query = "UPDATE Cancela SET status = ? WHERE id = ?";
-        try (Connection conn = Banco.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        boolean alterou = false;
+        Connection conn = Banco.getConnection();
 
-            stmt.setString(1, cancela.getStatus());
-            stmt.setInt(2, cancela.getIdCancela());
-            int linhasAfetadas = stmt.executeUpdate();
-            return linhasAfetadas > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao atualizar cancela: " + e.getMessage(), e);
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, cancelaEditada.getStatus());
+            stmt.setInt(2, cancelaEditada.getIdCancela());
+            alterou = stmt.executeUpdate() > 0;
+        } catch (SQLException erro) {
+            System.out.println("Erro ao atualizar cancela");
+            System.out.println("Erro: " + erro.getMessage());
+        } finally {
+            Banco.closeConnection(conn);
         }
+
+        return alterou;
     }
 
-    public Cancela consultarPorId(int idCancela) {
+    @Override
+    public Cancela consultarPorId(int id) {
+        Connection conn = Banco.getConnection();
         String query = "SELECT * FROM Cancela WHERE id = ?";
-        try (Connection conn = Banco.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        Cancela cancela = null;
 
-            stmt.setInt(1, idCancela);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    Cancela cancela = new Cancela();
-                    cancela.setIdCancela(rs.getInt("id"));
-                    cancela.setStatus(rs.getString("status"));
-                    return cancela;
-                } else {
-                    return null;
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            try (ResultSet resultado = stmt.executeQuery()) {
+                if (resultado.next()) {
+                    cancela = new Cancela();
+                    cancela.setIdCancela(resultado.getInt("id"));
+                    cancela.setStatus(resultado.getString("status"));
                 }
             }
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar cancela por ID: " + e.getMessage(), e);
+        } catch (SQLException erro) {
+            System.out.println("Erro ao consultar cancela com o id: " + id);
+            System.out.println("Erro: " + erro.getMessage());
+        } finally {
+            Banco.closeConnection(conn);
         }
+
+        return cancela;
     }
 
+    @Override
     public ArrayList<Cancela> consultarTodos() {
-        List<Cancela> cancelas = new ArrayList<>();
+        ArrayList<Cancela> cancelas = new ArrayList<>();
+        Connection conn = Banco.getConnection();
         String query = "SELECT * FROM Cancela";
-        try (Connection conn = Banco.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
 
-            while (rs.next()) {
+        try (PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet resultado = stmt.executeQuery()) {
+
+            while (resultado.next()) {
                 Cancela cancela = new Cancela();
-                cancela.setIdCancela(rs.getInt("id"));
-                cancela.setStatus(rs.getString("status"));
+                cancela.setIdCancela(resultado.getInt("id"));
+                cancela.setStatus(resultado.getString("status"));
                 cancelas.add(cancela);
             }
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar cancelas: " + e.getMessage(), e);
+        } catch (SQLException erro) {
+            System.out.println("Erro ao consultar todas as cancelas");
+            System.out.println("Erro: " + erro.getMessage());
+        } finally {
+            Banco.closeConnection(conn);
         }
-        return (ArrayList<Cancela>) cancelas; 
+
+        return cancelas;
     }
 }
