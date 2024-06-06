@@ -1,5 +1,9 @@
 # Sistema de Gerenciamento de Estacionamento - Alaloka
 
+# Objetivo
+
+O projeto "Alaloka Estacionamento" tem como objetivo desenvolver um sistema completo para gerenciar estacionamentos, incluindo o cadastro e controle de vagas, clientes, carros, tickets e cancelas. A solução visa automatizar processos, otimizar o uso do espaço e facilitar a gestão financeira do estacionamento.
+
 ## Rol de Requisitos:
 
 ## Requisitos Funcionais:
