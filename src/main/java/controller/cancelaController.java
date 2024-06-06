@@ -1,63 +1,58 @@
 package controller;
 
-import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.*;
-import model.entity.Cancela;
-import model.repository.alaloka.CancelaRepository;
-
-import java.net.URI;
 import java.util.List;
 
+import exception.AlalokaException;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import model.entity.Cancela;
+import service.CancelaService;
+
 @Path("/cancelas")
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
 public class cancelaController {
 
-    @Inject
-    private CancelaRepository cancelaRepository;
+    private final CancelaService service = new CancelaService();
 
     @GET
+    @Path("/todas")
+    @Produces(MediaType.APPLICATION_JSON)
     public List<Cancela> listarCancelas() {
-        return cancelaRepository.consultarTodos();
+        return service.consultarTodasCancelas();
     }
 
     @GET
     @Path("/{id}")
-    public Response buscarCancelaPorId(@PathParam("id") int id) {
-        Cancela cancela = cancelaRepository.consultarPorId(id);
-        if (cancela != null) {
-            return Response.ok(cancela).build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+    @Produces(MediaType.APPLICATION_JSON)
+    public Cancela buscarCancelaPorId(@PathParam("id") int id) {
+        return service.consultarCancelaPorId(id);
     }
 
     @POST
-    public Response cadastrarCancela(Cancela cancela, @Context UriInfo uriInfo) {
-        Cancela novaCancela = cancelaRepository.salvar(cancela);
-        URI uri = uriInfo.getAbsolutePathBuilder().path(Integer.toString(novaCancela.getIdCancela())).build();
-        return Response.created(uri).entity(novaCancela).build();
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Cancela cadastrarCancela(Cancela cancela) throws AlalokaException {
+        return service.salvarCancela(cancela);
     }
-//...
+
     @PUT
     @Path("/{id}")
-    public Response atualizarCancela(@PathParam("id") int id, Cancela cancela) {
-        cancela.setIdCancela(id); 
-        if (cancelaRepository.alterar(cancela)) {
-            return Response.ok().build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    public boolean atualizarCancela(@PathParam("id") int id, Cancela cancela) throws AlalokaException {
+        cancela.setIdCancela(id);
+        return service.atualizarCancela(cancela);
     }
 
     @DELETE
     @Path("/{id}")
-    public Response deletarCancela(@PathParam("id") int id) {
-        if (cancelaRepository.excluir(id)) {
-            return Response.ok().build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+    public boolean deletarCancela(@PathParam("id") int id) throws AlalokaException {
+        return service.excluirCancela(id);
     }
 }

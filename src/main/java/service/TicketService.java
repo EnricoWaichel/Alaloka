@@ -17,30 +17,37 @@ public class TicketService {
     private TicketRepository ticketRepository = new TicketRepository();
     private VagaRepository vagaRepository = new VagaRepository();
 
-    public Ticket criarTicket(Vaga vaga, Carro carro, Cliente cliente) throws AlalokaException {
+    public Ticket salvarTicket(Ticket ticket) throws AlalokaException {
+        Vaga vaga = ticket.getVaga();
         if (!vaga.isDisponivel()) {
             throw new AlalokaException("Vaga não está disponível.");
         }
         vaga.setDisponivel(false);
         vagaRepository.alterar(vaga);
 
-        Ticket novoTicket = new Ticket(vaga, carro, cliente, LocalDateTime.now(), null, 0.0);
-        return ticketRepository.salvar(novoTicket);
+        ticket.setDataEntrada(LocalDateTime.now());
+        return ticketRepository.salvar(ticket);
     }
 
-    public boolean finalizarTicket(int ticketId) throws AlalokaException {
-        Ticket ticket = ticketRepository.consultarPorId(ticketId);
+    public boolean atualizarTicket(Ticket ticket) throws AlalokaException {
+        Ticket ticketExistente = ticketRepository.consultarPorId(ticket.getId());
+        if (ticketExistente == null) {
+            throw new AlalokaException("Ticket não encontrado.");
+        }
+        return ticketRepository.alterar(ticket);
+    }
+
+    public boolean excluirTicket(int id) throws AlalokaException {
+        Ticket ticket = ticketRepository.consultarPorId(id);
         if (ticket == null) {
             throw new AlalokaException("Ticket não encontrado.");
         }
-        ticket.setDataSaida(LocalDateTime.now());
-        ticket.setValorPago(calcularValor(ticket));
 
         Vaga vaga = ticket.getVaga();
         vaga.setDisponivel(true);
         vagaRepository.alterar(vaga);
 
-        return ticketRepository.alterar(ticket);
+        return ticketRepository.excluir(id);
     }
 
     public Ticket consultarTicketPorId(int id) {
@@ -54,15 +61,13 @@ public class TicketService {
     private double calcularValor(Ticket ticket) {
         LocalDateTime dataEntrada = ticket.getDataEntrada();
         LocalDateTime dataSaida = ticket.getDataSaida();
-        
+
         long diffEmHoras = ChronoUnit.HOURS.between(dataEntrada, dataSaida);
-        
-        // Suponha uma taxa fixa por hora
-        double taxaPorHora = 10.0; // Valor temporario
-        
+
+        double taxaPorHora = 10.0; // Valor temporário
+
         double valorTotal = diffEmHoras * taxaPorHora;
-        
+
         return valorTotal;
     }
-
 }

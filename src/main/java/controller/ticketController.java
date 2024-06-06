@@ -1,64 +1,58 @@
 package controller;
 
-import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.*;
-import model.entity.Ticket;
-import model.repository.alaloka.TicketRepository;
-
-import java.net.URI;
 import java.util.List;
 
+import exception.AlalokaException;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import model.entity.Ticket;
+import service.TicketService;
+
 @Path("/tickets")
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
 public class ticketController {
 
-    @Inject
-    private TicketRepository ticketRepository;
+    private final TicketService service = new TicketService();
 
     @GET
     @Path("/todos")
+    @Produces(MediaType.APPLICATION_JSON)
     public List<Ticket> listarTickets() {
-        return ticketRepository.consultarTodos();
+        return service.consultarTodosTickets();
     }
 
     @GET
     @Path("/{id}")
-    public Response buscarTicketPorId(@PathParam("id") int id) {
-        Ticket ticket = ticketRepository.consultarPorId(id);
-        if (ticket != null) {
-            return Response.ok(ticket).build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+    @Produces(MediaType.APPLICATION_JSON)
+    public Ticket buscarTicketPorId(@PathParam("id") int id) {
+        return service.consultarTicketPorId(id);
     }
 
     @POST
-    public Response cadastrarTicket(Ticket ticket, @Context UriInfo uriInfo) {
-        Ticket novoTicket = ticketRepository.salvar(ticket);
-        URI uri = uriInfo.getAbsolutePathBuilder().path(Integer.toString(novoTicket.getId())).build();
-        return Response.created(uri).entity(novoTicket).build();
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Ticket cadastrarTicket(Ticket ticket) throws AlalokaException {
+        return service.salvarTicket(ticket);
     }
 
     @PUT
     @Path("/{id}")
-    public Response atualizarTicket(@PathParam("id") int id, Ticket ticket) {
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    public boolean atualizarTicket(@PathParam("id") int id, Ticket ticket) throws AlalokaException {
         ticket.setId(id);
-        if (ticketRepository.alterar(ticket)) {
-            return Response.ok().build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+        return service.atualizarTicket(ticket);
     }
 
     @DELETE
     @Path("/{id}")
-    public Response deletarTicket(@PathParam("id") int id) {
-        if (ticketRepository.excluir(id)) {
-            return Response.ok().build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
+    public boolean deletarTicket(@PathParam("id") int id) throws AlalokaException {
+        return service.excluirTicket(id);
     }
 }
