@@ -111,14 +111,14 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"id\": 2,\r\n    \"numeroVaga\": 1,\r\n    \"tipoVaga\": \"moto\",\r\n    \"disponivel\": true\r\n}",
+							"raw": "[\r\n    {\r\n        \"nome\": \"João Silva\",\r\n        \"cpf\": \"12345678901\",\r\n        \"telefone\": \"48987654321\"\r\n    }\r\n]\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "http://localhost:8080/Alaloka/rest/clientes"
+						"url": "http://localhost:8080/Alaloka/rest/clientes/1"
 					},
 					"response": []
 				},
@@ -179,14 +179,14 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"id\": 2,\r\n    \"numeroVaga\": 1,\r\n    \"tipoVaga\": \"moto\",\r\n    \"disponivel\": true\r\n}",
+							"raw": "[\r\n    {\r\n        \"placa\": \"ABC1234\",\r\n        \"tipoCarro\": \"carro\"\r\n    }\r\n]",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "http://localhost:8080/Alaloka/rest/carros"
+						"url": "http://localhost:8080/Alaloka/rest/carros/1"
 					},
 					"response": []
 				},
@@ -220,7 +220,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "    {\r\n        \"placa\": \"ABC1234\",\r\n        \"tipoCarro\": \"carro\"\r\n    }",
+							"raw": "[\r\n    {\r\n        \"status\": \"fechada\"\r\n    }\r\n]\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -247,7 +247,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"id\": 2,\r\n    \"numeroVaga\": 1,\r\n    \"tipoVaga\": \"moto\",\r\n    \"disponivel\": true\r\n}",
+							"raw": "[\r\n    {\r\n        \"status\": \"aberta\"\r\n    }\r\n]\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -288,14 +288,14 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "    {\r\n        \"placa\": \"ABC1234\",\r\n        \"tipoCarro\": \"carro\"\r\n    }",
+							"raw": "{\r\n  \"vaga\": {\r\n    \"id\": 1\r\n  },\r\n  \"carro\": {\r\n    \"idCarro\": 1\r\n  },\r\n  \"cliente\": {\r\n    \"idCliente\": 1\r\n  },\r\n  \"dataEntrada\": \"2024-06-05T10:00:00\",\r\n  \"dataSaida\": null,\r\n  \"valorPago\": 0.00\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "http://localhost:8080/Alaloka/rest/ticket"
+						"url": "http://localhost:8080/Alaloka/rest/tickets"
 					},
 					"response": []
 				},
@@ -309,13 +309,13 @@
 					"response": []
 				},
 				{
-					"name": "Atualizar Copy 2",
+					"name": "Atualizar ticket",
 					"request": {
 						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"id\": 2,\r\n    \"numeroVaga\": 1,\r\n    \"tipoVaga\": \"moto\",\r\n    \"disponivel\": true\r\n}",
+							"raw": "{\r\n  \"vaga\": {\r\n    \"id\": 1\r\n  },\r\n  \"carro\": {\r\n    \"idCarro\": 1\r\n  },\r\n  \"cliente\": {\r\n    \"idCliente\": 1\r\n  },\r\n  \"dataEntrada\": \"2024-07-05T10:00:00\",\r\n  \"dataSaida\": null,\r\n  \"valorPago\": 0.00\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -327,7 +327,7 @@
 					"response": []
 				},
 				{
-					"name": "Consultar todas Copy",
+					"name": "Consultar todas",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -336,7 +336,7 @@
 					"response": []
 				},
 				{
-					"name": "Consultar por id Copy",
+					"name": "Consultar por id",
 					"request": {
 						"method": "GET",
 						"header": [],
